@@ -158,4 +158,21 @@ async def ticket(ctx):
     await ctx.send(embed=embed, view=view)
 
 
+@bot.command(name="clear")
+@commands.has_permissions(manage_messages=True)
+async def clear_messages(ctx):
+    # Envia uma mensagem de aviso
+    await ctx.send("Limpando todas as mensagens do canal...")
+
+    # Deleta todas as mensagens do canal, incluindo as mensagens enviadas pelo bot
+    await ctx.channel.purge()
+
+    # Envia uma mensagem temporária confirmando a limpeza
+    confirmation_msg = await ctx.send("Todas as mensagens do canal foram apagadas!")
+    await asyncio.sleep(4)  # Aguarda 4 segundos
+    await confirmation_msg.delete()  # Exclui a mensagem de confirmação
+
+
 bot.run(TOKEN)
+
+# python src/main.py
