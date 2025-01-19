@@ -1,7 +1,9 @@
+import asyncio
 import os
 
 import discord
 from discord.ext import commands
+from discord.ui import Button, View
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -66,14 +68,94 @@ async def produto1(ctx):
         color=discord.Color.purple(),
     )
 
-    embed.add_field(
-        name="Link:", value="https://www.udemy.com/course/python-completo/", inline=True
-    )
     embed.set_image(
         url="https://cdn.discordapp.com/attachments/1330416676264742984/1330416733122461748/embed.png?ex=678de6a3&is=678c9523&hm=7655acdfc6caa6380647cf359f89cb0f8153edfb93ad563d4b953d272ff24c2d&"
     )  # 400x200px
     embed.set_footer(text="Todos os direitos reservados.")
-    await ctx.send(embed=embed)
+
+    class Produto1View(View):
+        @discord.ui.button(label="Comprar", style=discord.ButtonStyle.success)
+        async def comprar_callback(
+            self, interaction: discord.Interaction, button: discord.ui.Button
+        ):
+            await interaction.response.send_message(
+                "Clique aqui para realizar sua compra: [Link de Compra](https://www.udemy.com/course/python-completo/)",
+                ephemeral=True,
+            )
+
+    view = Produto1View()
+
+    await ctx.send(embed=embed, view=view)
+
+
+@bot.command(name="ticket")
+async def ticket(ctx):
+    embed = discord.Embed(
+        title="Suporte - Ticket do Bot V6A",
+        description="Clique no botão para abrir um ticket!",
+        color=discord.Color.purple(),
+    )
+    embed.set_footer(text="Todos os direitos reservados.")
+    embed.set_image(
+        url="https://cdn.discordapp.com/attachments/1330416676264742984/1330416733122461748/embed.png"
+    )
+
+    class TicketView(View):
+        @discord.ui.button(label="Abrir Ticket", style=discord.ButtonStyle.success)
+        async def open_ticket(
+            self,
+            interaction: discord.Interaction,
+            button: discord.ui.Button,
+        ):
+            guild = ctx.guild
+            overwrites = {
+                guild.default_role: discord.PermissionOverwrite(read_messages=False),
+                ctx.author: discord.PermissionOverwrite(read_messages=True),
+                guild.me: discord.PermissionOverwrite(read_messages=True),
+            }
+
+            # Criando o canal privado
+            ticket_channel = await guild.create_text_channel(
+                name=f"ticket-{ctx.author.name}", overwrites=overwrites
+            )
+
+            await ticket_channel.send(
+                f"Bem-Vindo, {ctx.author.mention}!\nNosso suporte estará com você em breve!"
+            )
+            await interaction.response.send_message(
+                "Seu ticket foi criado!\nVerifique o canal criado no servidor.",
+                ephemeral=True,
+            )
+
+            # Adiciona botão para fechar o canal
+            class CloseTicketView(View):
+                @discord.ui.button(
+                    label="Fechar Chat", style=discord.ButtonStyle.danger
+                )
+                async def close_ticket(
+                    self, interaction: discord.Interaction, button: discord.ui.Button
+                ):
+                    # Envia a mensagem de aviso com o tempo restante
+                    await interaction.response.send_message(
+                        "O ticket será fechado e o canal excluído em 8 segundos.",
+                        ephemeral=True,
+                    )
+
+                    # Aguarda 8 segundos antes de deletar o canal
+                    await asyncio.sleep(5)
+
+                    # Exclui o canal
+                    await interaction.channel.delete(
+                        reason="Ticket fechado pelo usuário"
+                    )
+
+            close_view = CloseTicketView()
+            await ticket_channel.send(
+                "Clique no botão abaixo para fechar este ticket.", view=close_view
+            )
+
+    view = TicketView()
+    await ctx.send(embed=embed, view=view)
 
 
 bot.run(TOKEN)
