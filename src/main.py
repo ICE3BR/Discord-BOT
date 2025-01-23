@@ -45,7 +45,16 @@ async def on_member_join(member):
         await guild.system_channel.send(embed=bemvindo)
 
 
-@bot.command(name="sobre")
+bot_commands = """
+`!V6A` - Ver informações sobre nosso bot
+`!ping` - Ver latência
+`!clear` - Limpar mensagens
+`!produto1` - Ver curso
+`!ticket` - Abrir ticket
+"""
+
+
+@bot.command(name="V6A")
 async def sobre(ctx):
     embed = discord.Embed(
         title="Sobre nosso bot",
@@ -53,9 +62,7 @@ async def sobre(ctx):
         color=discord.Color.purple(),
     )
 
-    embed.add_field(
-        name="Comandos Disponiveis", value="`!ping`\n`!sobre`", inline=False
-    )
+    embed.add_field(name="Comandos Disponiveis", value=bot_commands, inline=False)
     embed.set_footer(text="Criado por: ICE3BR")
     await ctx.send(embed=embed)
 
