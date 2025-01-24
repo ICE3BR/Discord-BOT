@@ -21,7 +21,7 @@ async def sobre_command(interaction):
         description="Sou um bot criado para ensinar programação no Discord!",
         color=discord.Color.purple(),
     )
-    embed.add_field(name="Criador", value="ICE3BR", inline=False)
+    embed.add_field(name="Criador", value="[ICE3BR](https://github.com/ICE3BR/discord-bot)", inline=False)
     await interaction.response.send_message(embed=embed)
 
 
