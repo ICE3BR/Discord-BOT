@@ -20,13 +20,27 @@ bot = commands.Bot(
 
 @bot.event
 async def on_ready():
+    await bot.tree.sync()
     print(f"Bot foi conectado ao Discord com sucesso como: {bot.user.name}")
 
 
-@bot.command(name="ping")  #!hello
-async def hello(ctx):
+# Função compartilhada || >Comando Ping
+async def ping_response(latency, send_method):
+    await send_method(f"Pong! Latência {latency}ms")
+
+
+# Comando baseado em prefixo
+@bot.command(name="ping", description="Verifica a latência!")
+async def ping_prefix(ctx):
     latency = round(bot.latency * 1000, 2)
-    await ctx.send(f"Pong! Latência {latency}ms")
+    await ping_response(latency, ctx.send)
+
+
+# Comando de barra (slash command)
+@bot.tree.command(name="ping", description="Verifica a latência!")
+async def ping_slash(interaction: discord.Interaction):
+    latency = round(bot.latency * 1000, 2)
+    await ping_response(latency, interaction.response.send_message)
 
 
 @bot.event
@@ -54,7 +68,7 @@ bot_commands = """
 """
 
 
-@bot.command(name="V6A")
+@bot.command(name="V6A", description="Ver informações sobre nosso bot")
 async def sobre(ctx):
     embed = discord.Embed(
         title="Sobre nosso bot",
@@ -178,6 +192,13 @@ async def clear_messages(ctx):
     confirmation_msg = await ctx.send("Todas as mensagens do canal foram apagadas!")
     await asyncio.sleep(4)  # Aguarda 4 segundos
     await confirmation_msg.delete()  # Exclui a mensagem de confirmação
+
+
+@bot.command(name="volp")
+async def msg_volp_mention(ctx):
+    user_id = 705184112327131179  # Substitua pelo ID real do usuário
+    mention = f"<@{user_id}> É o mais gostoso do Universo!!"
+    await ctx.send(f"{mention}!")
 
 
 bot.run(TOKEN)
